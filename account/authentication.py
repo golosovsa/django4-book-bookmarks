@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from .models import Profile
 
 
 class EmailAuthBackend:
@@ -18,3 +19,7 @@ class EmailAuthBackend:
             return self.User.objects.get(pk=user_pk)
         except self.User.DoesNotExist:
             return None
+
+
+def create_profile(backend, user, *args, **kwargs):
+    Profile.objects.get_or_create(user=user)
