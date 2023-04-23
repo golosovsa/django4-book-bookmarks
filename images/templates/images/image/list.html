@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Images bookmarked{% endblock %}
+{% block content %}
+    <h1>Images bookmarked</h1>
+    <div class="image-list">
+        {% include "images/image/list_images.html" %}
+    </div>
+{% endblock %}
+{% block domready %}
+{#<script>#}
+    let page = 1;
+    let emptyPage = false;
+    let blockRequest = false;
+    window.addEventListener('scroll', e => {
+        const margin = document.body.clientHeight - window.innerHeight - 200;
+        if (window.scrollY > margin && !emptyPage && !blockRequest) {
+            blockRequest = true;
+            page++;
+
+            fetch('?images_only=1&page=' + page).then(response => response.text()).then(html => {
+                if (html === '') {
+                    emptyPage = true;
+                } else {
+                    const imageList = document.getElementById('image-list');
+                    imageList.insertAdjacentHTML('beforeEnd', html);
+                    blockRequest = false;
+                }
+            })
+        }
+    });
+
+    const scrollEvent = new Event('scroll');
+    window.dispatchEvent(scrollEvent)
+{#</script>#}
+{% endblock %}

@@ -10,7 +10,7 @@ link.type = 'text/css';
 link.href = styleUrl + '?r=' + Math.floor(Math.random() * 9999999999);
 head.appendChild(link);
 
-const body = document.getElementsByTagName('body');
+const body = document.body;
 const boxHTML = `
     <div id="bookmarklet">
         <a href="#" id="close">&times;</a>
@@ -18,7 +18,7 @@ const boxHTML = `
         <div class="images"></div>
     </div>    
 `;
-body.innerHTML = boxHTML;
+body.innerHTML += boxHTML;
 
 function bookmarkletLaunch() {
     const bookmarklet = document.getElementById('bookmarklet');
@@ -29,13 +29,26 @@ function bookmarkletLaunch() {
         bookmarklet.style.display = 'none';
     });
 
-    const images = document.querySelector('img[src$=".jpg"], img[src$=".jpeg"], img[src$=".png"]');
+    const images = document.querySelectorAll(
+        'img[src$=".jpg"], img[src$=".jpeg"], img[src$=".png"]'
+    );
     images.forEach(image => {
         if (image.naturalWidth >= minWidth && image.naturalHeight >= minHeight) {
             const imageFound = document.createElement('img')
             imageFound.src = image.src
             imagesFound.append(imageFound)
         }
+    });
+
+    imagesFound.querySelectorAll('img').forEach(image => {
+        image.addEventListener('click', event => {
+            const imageSelected = event.target;
+            const url = encodeURIComponent(imageSelected.src);
+            const title = encodeURIComponent(document.title);
+            bookmarklet.style.display = 'none';
+
+            window.open(`${siteUrl}images/create/?url=${url}&title=${title}`, '_blank');
+        });
     });
 }
 
