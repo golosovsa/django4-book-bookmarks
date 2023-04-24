@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_POST
 
 from account.forms import LoginForm, UserRegistrationForm, UserEditForm, ProfileEditForm
-from account.models import Profile
+from account.models import Profile, Contact
 
 
 def user_login(request):
@@ -92,3 +93,21 @@ def user_list(request):
 def user_detail(request, username):
     user = get_object_or_404(get_user_model(), username=username, is_active=True)
     return render(request, 'account/user/detail.html', {'section': 'people', 'user': user})
+
+
+@require_POST
+@login_required
+def user_follow(request):
+    user_pk = request.POST.get('pk')
+    action = request.POST.get('action')
+    if user_pk and action:
+        try:
+            user = get_user_model().objects.get(pk=user_pk)
+            if action == 'follow':
+                Contact.objects.get_or_create(user_from=request.user, user_to=user)
+            else:
+                Contact.objects.filter(user_from=request.user, user_to=user).delete()
+            return JsonResponse({'status': 'ok'})
+        except get_user_model().DoesNotExist:
+            return JsonResponse({'status': 'ok'})
+    return JsonResponse({'status': 'ok'})

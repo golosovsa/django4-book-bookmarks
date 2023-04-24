@@ -8,6 +8,7 @@ Django==4.2
 django-extensions==3.2.1
 django-stubs==1.16.0
 django-stubs-ext==0.8.0
+easy-thumbnails==2.8.5
 idna==3.4
 MarkupSafe==2.1.2
 mypy==1.2.0
