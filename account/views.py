@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from account.forms import LoginForm, UserRegistrationForm, UserEditForm, ProfileEditForm
 from account.models import Profile, Contact
 from actions.utils import create_action
+from actions.models import Action
 
 
 def user_login(request):
@@ -114,3 +115,13 @@ def user_follow(request):
         except get_user_model().DoesNotExist:
             return JsonResponse({'status': 'error'})
     return JsonResponse({'status': 'error'})
+
+
+@login_required
+def dashboard(request):
+    actions = Action.objects.exclude(user=request.user)
+    following_pks = request.user.following.values_list('pk', flat=True)
+    if following_pks:
+        actions = actions.filter(user_id__in=following_pks)
+    actions = actions.select_related('user', 'user__profile')[:10].prefetch_related('target')[:10]
+    return render(request, 'account/dashboard.html', {'section': 'dashboard', 'actions': actions})

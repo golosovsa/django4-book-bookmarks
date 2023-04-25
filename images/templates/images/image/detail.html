@@ -15,6 +15,9 @@
                     <span class="total">{{ total_likes }}</span>
                     like{{ total_likes|pluralize }}
                 </span>
+                <span class="count">
+                    {{ total_views }} view{{ total_views|pluralize }}
+                </span>
                 <a href="#" data-pk="{{ image.pk }}"
                    data-action="{% if request.user in users_like %}un{% endif %}like"
                    class="like button">
@@ -43,33 +46,33 @@
 {% endblock %}
 
 {% block domready %}
-{#    <script>#}
-        const url = '{% url "images:like" %}';
-        const options = {
-            method: 'POST',
-            headers: {'X-CSRFToken': csrftoken},
-            mode: 'same-origin',
-        }
-        document.querySelector('a.like').addEventListener('click', function (e) {
-            e.preventDefault();
-            const likeButton = this;
-            const formData = new FormData();
-            formData.append('pk', likeButton.dataset.pk);
-            formData.append('action', likeButton.dataset.action);
-            options['body'] = formData;
+    {#    <script>#}
+    const url = '{% url "images:like" %}';
+    const options = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin',
+    }
+    document.querySelector('a.like').addEventListener('click', function (e) {
+    e.preventDefault();
+    const likeButton = this;
+    const formData = new FormData();
+    formData.append('pk', likeButton.dataset.pk);
+    formData.append('action', likeButton.dataset.action);
+    options['body'] = formData;
 
-            fetch(url, options).then(response => response.json()).then(data => {
-                if (data['status'] !== 'ok') {
-                    return;
-                }
-                const previousAction = likeButton.dataset.action;
-                const action = previousAction === 'like' ? 'unlike' : 'like';
-                likeButton.dataset.action = action;
-                likeButton.innerHTML = action;
-                const likeCount = document.querySelector('span.count .total');
-                const totalLikes = parseInt(likeCount.innerHTML);
-                likeCount.innerHTML = (previousAction === 'like' ? totalLikes + 1 : totalLikes - 1).toString();
-            });
-        });
-{#    </script>#}
+    fetch(url, options).then(response => response.json()).then(data => {
+    if (data['status'] !== 'ok') {
+    return;
+    }
+    const previousAction = likeButton.dataset.action;
+    const action = previousAction === 'like' ? 'unlike' : 'like';
+    likeButton.dataset.action = action;
+    likeButton.innerHTML = action;
+    const likeCount = document.querySelector('span.count .total');
+    const totalLikes = parseInt(likeCount.innerHTML);
+    likeCount.innerHTML = (previousAction === 'like' ? totalLikes + 1 : totalLikes - 1).toString();
+    });
+    });
+    {#    </script>#}
 {% endblock %}
